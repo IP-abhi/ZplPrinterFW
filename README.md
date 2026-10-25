@@ -110,6 +110,10 @@ PrinterDebug/
 │       └── linux_bt_transport.cpp
 ├── cli/
 │   └── main.cpp                      # Command-line tool (zpl_tool)
+├── android/                          # Android Studio native app (NDK + Compose)
+│   ├── app/src/main/cpp/             # C++ JNI Bridge compiling core libzplcore.so
+│   ├── app/src/main/java/            # Kotlin UsbManager & Bluetooth RFCOMM transports
+│   └── app/build.gradle.kts
 └── tests/
     ├── test_config.cpp               # Config unit tests
     ├── test_dither.cpp               # Dithering unit tests
@@ -310,6 +314,21 @@ void test_my_printing_logic() {
     assert(reply.find("LabelPrinter") != std::string::npos);
 }
 ```
+
+---
+
+## Android Mobile Application (`android/`)
+
+A native Android application using **Jetpack Compose** (Material 3) and **NDK C++17**:
+- Directly compiles our C++ core (`libzplcore`) into `libzplnative.so` via Android Studio's CMake integration.
+- Connects to printers over **USB OTG** (`android.hardware.usb.UsbManager`) and **Bluetooth SPP** (`android.bluetooth.BluetoothSocket`).
+- Features image picking, live monochrome dithering preview, darkness adjustment, physical alignment ruler test, and query tools.
+
+### Running on Android Device
+1. Open **Android Studio**.
+2. Select **File > Open...** and choose the `android/` directory inside this repository (`PrinterDebug/android`).
+3. Allow Gradle to sync.
+4. Select your connected physical Android device in the top device dropdown and click **Run (Shift + F10)**.
 
 ---
 

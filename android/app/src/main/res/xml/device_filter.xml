@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Milestone MHT-L1091 / Rongta USB Label Printer (0fe6:8800) -->
+    <!-- vendor-id 0x0fe6 = 4070, product-id 0x8800 = 34816 -->
+    <usb-device vendor-id="4070" product-id="34816" />
+
+    <!-- Generic USB Printer class (class 7 = Printers) -->
+    <usb-device class="7" />
+</resources>
+

@@ -74,15 +74,3 @@ add_executable(zpl_tests ${ZPL_TEST_SOURCES})
 target_link_libraries(zpl_tests PRIVATE zplcore gtest_main)
 add_test(NAME AllGTests COMMAND zpl_tests)
 
-set(ZPL_TEST_SOURCES
-    tests/test_config.cpp
-    tests/test_dither.cpp
-    tests/test_encoder.cpp
-    tests/test_diagnostics.cpp
-    tests/test_printer.cpp
-)
-
-add_executable(zpl_tests ${ZPL_TEST_SOURCES})
-target_link_libraries(zpl_tests PRIVATE zplcore gtest_main)
-add_test(NAME AllGTests COMMAND zpl_tests)
-

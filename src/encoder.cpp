@@ -71,6 +71,8 @@ std::string ZplEncoder::compress_row(const std::string& hex_row) {
             break;
         }
 
+        const size_t orig_n = n;
+
         // Multiples of 20 (g = 20, h = 40, ..., z = 400)
         while (n >= 20) {
             size_t k = std::min<size_t>(n / 20, 20);
@@ -78,9 +80,14 @@ std::string ZplEncoder::compress_row(const std::string& hex_row) {
             n -= 20 * k;
         }
 
-        // Remainder 1-19 (G = 1, H = 2, ..., Y = 19)
-        if (n > 0) {
+        // Remainder 1-19:
+        // If n > 1, emit repeat code G-Y (H=2, ..., Y=19).
+        // If n == 1 and a multiple of 20 was emitted (orig_n > 1), emit 'G' so the decompressor adds 1 (e.g. gG = 21).
+        // If orig_n == 1, no repeat prefix is needed; a bare hex digit implies count 1 in ZPL II.
+        if (n > 1) {
             out.push_back(static_cast<char>('G' + n - 1));
+        } else if (n == 1 && orig_n > 1) {
+            out.push_back('G');
         }
 
         out.push_back(ch);
@@ -284,22 +291,36 @@ std::string ZplEncoder::encode_image(
     }
 
     int bpr = bitmap.bytes_per_row;
-    size_t total = bitmap.data.size();
+    int total_rows = bitmap.height;
 
-    std::string payload;
-    if (compress) {
-        payload = compress_gfa_payload(bitmap.data.data(), total, bpr);
-    } else {
-        payload = to_hex_string(bitmap.data.data(), total);
-    }
+    // Slice tall images into horizontal bands to prevent firmware buffer overflow
+    // and 16-bit integer counter wrap-around in printer firmware (e.g. Rongta V1.11, Zebra).
+    // Maximum 16 KB (16,384 bytes) per band ensures total_bytes < 32,767.
+    const size_t MAX_BAND_BYTES = 16384;
+    int rows_per_band = std::max(1, static_cast<int>(MAX_BAND_BYTES / static_cast<size_t>(bpr)));
 
     std::string zpl = build_preamble(config);
-    zpl += "^FO0,0^GFA," + std::to_string(total) + ","
-                         + std::to_string(total) + ","
-                         + std::to_string(bpr) + ","
-                         + payload + "^FS\n";
-    zpl += "^XZ\n";
 
+    for (int y = 0; y < total_rows; y += rows_per_band) {
+        int band_height = std::min(rows_per_band, total_rows - y);
+        size_t band_bytes = static_cast<size_t>(band_height) * static_cast<size_t>(bpr);
+        const uint8_t* band_ptr = bitmap.data.data() + (static_cast<size_t>(y) * static_cast<size_t>(bpr));
+
+        std::string payload;
+        if (compress) {
+            payload = compress_gfa_payload(band_ptr, band_bytes, bpr);
+        } else {
+            payload = to_hex_string(band_ptr, band_bytes);
+        }
+
+        zpl += "^FO0," + std::to_string(y) + "^GFA,"
+                       + std::to_string(band_bytes) + ","
+                       + std::to_string(band_bytes) + ","
+                       + std::to_string(bpr) + ","
+                       + payload + "^FS\n";
+    }
+
+    zpl += "^XZ\n";
     return zpl;
 }
 

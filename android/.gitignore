@@ -1,0 +1,48 @@
+# Built application files
+*.apk
+*.aar
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+build/
+app/build/
+
+# Gradle cache and local state
+.gradle/
+
+# Local configuration file (SDK path, keystores, etc.)
+local.properties
+
+# Proguard / R8 folder generated outputs
+proguard/
+
+# Log files
+*.log
+
+# Android Studio / IntelliJ IDEA
+*.iml
+.idea/
+.navigation/
+captures/
+
+# NDK / C++ build caches & intermediate objects
+.cxx/
+.externalNativeBuild/
+obj/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Device and profiler artifacts
+*.hprof
+

@@ -118,3 +118,28 @@ TEST(ZplEncoderTest, EncodeImageFraming) {
     EXPECT_NE(zpl.find("^XZ\n"), std::string::npos);
 }
 
+TEST(ZplEncoderTest, EncodeImageBandingLargeBitmap) {
+    // 800 dots wide = 100 bytes per row.
+    // 400 rows = 40,000 bytes.
+    // Max band size is 16384 bytes -> rows_per_band = 16384 / 100 = 163 rows.
+    // Band 0: rows 0-162 (163 rows = 16300 bytes) at ^FO0,0
+    // Band 1: rows 163-325 (163 rows = 16300 bytes) at ^FO0,163
+    // Band 2: rows 326-399 (74 rows = 7400 bytes) at ^FO0,326
+    zpl::MonochromeBitmap bmp;
+    bmp.width = 800;
+    bmp.height = 400;
+    bmp.bytes_per_row = 100;
+    bmp.data.assign(40000, 0xAA);
+
+    zpl::ZplConfig cfg;
+    cfg.width_dots = 800;
+    cfg.length_dots = 400;
+
+    std::string zpl = zpl::ZplEncoder::encode_image(bmp, cfg);
+    EXPECT_NE(zpl.find("^FO0,0^GFA,16300,16300,100,"), std::string::npos);
+    EXPECT_NE(zpl.find("^FO0,163^GFA,16300,16300,100,"), std::string::npos);
+    EXPECT_NE(zpl.find("^FO0,326^GFA,7400,7400,100,"), std::string::npos);
+    EXPECT_NE(zpl.find("^XZ\n"), std::string::npos);
+}
+
+

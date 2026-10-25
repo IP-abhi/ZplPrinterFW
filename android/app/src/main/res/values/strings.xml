@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ZPL Label Printer</string>
+    <string name="usb_permission_action">com.printer.zpl.USB_PERMISSION</string>
+</resources>
+
