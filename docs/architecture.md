@@ -33,7 +33,7 @@ graph TD
     end
 
     subgraph FacadeLayer["Facade Layer"]
-        Printer["zpl::ZplPrinter<br>(High-Level Workflow & Job Orchestrator, owns unique_ptr<ITransport>)"]
+        Printer["zpl::ZplPrinter<br>(High-Level Workflow & Job Orchestrator, owns unique_ptr&lt;ITransport&gt;)"]
     end
 
     subgraph CoreEngine["libzplcore (Platform-Independent C++17)"]
@@ -44,7 +44,7 @@ graph TD
     end
 
     subgraph TransportLayer["Transport Abstraction (zpl::transport)"]
-        ITransport["<<interface>> zpl::ITransport<br>+ open() : bool<br>+ write(data, size) : bool<br>+ read(size, timeout) : vector<uint8_t><br>+ is_open() : bool<br>+ close() : void"]
+        ITransport["[interface] zpl::ITransport<br>+ open() : bool<br>+ write(data, size) : bool<br>+ read(size, timeout) : vector<br>+ is_open() : bool<br>+ close() : void"]
         
         subgraph LinuxTransports["Linux Subsystem"]
             L_USB["LinuxUsbTransport<br>(/dev/usb/lp0, POSIX I/O)"]
@@ -71,13 +71,13 @@ graph TD
     FacadeLayer --> TransportLayer
     CoreEngine -.->|produces raw ZPL| FacadeLayer
     FacadeLayer -.->|writes bytes to| TransportLayer
-    ITransport <|-- L_USB
-    ITransport <|-- L_BT
-    ITransport <|-- W_Spool
-    ITransport <|-- W_BT
-    ITransport <|-- A_JNI
-    ITransport <|-- FileOut
-    ITransport <|-- MockOut
+    L_USB -.->|implements| ITransport
+    L_BT -.->|implements| ITransport
+    W_Spool -.->|implements| ITransport
+    W_BT -.->|implements| ITransport
+    A_JNI -.->|implements| ITransport
+    FileOut -.->|implements| ITransport
+    MockOut -.->|implements| ITransport
 ```
 
 ---
